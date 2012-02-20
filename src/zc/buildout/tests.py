@@ -2738,6 +2738,57 @@ def test_constrained_requirement():
     ...         print_('failed', o, c, g, '!=', e)
     """
 
+def test_other_section_extend_precedence():
+    r"""
+    >>> write('buildout.cfg', '''
+    ... [buildout]
+    ... parts = myfiles
+    ...
+    ... [debug]
+    ... recipe = zc.buildout:debug
+    ... file1 = ${:path}/file1
+    ... color = red
+    ...
+    ... [myfiles]
+    ... <= debug
+    ... path = mydata
+    ... color = green
+    ... ''')
+
+    >>> print system(buildout),
+    Installing myfiles.
+      color='green'
+      file1='mydata/file1'
+      path='mydata'
+      recipe='zc.buildout:debug'
+    """
+
+def test_same_section_extend_precedence():
+    r"""
+    >>> write('bar.cfg', '''
+    ... [myfiles]
+    ... recipe = zc.buildout:debug
+    ... file1 = ${:path}/file1
+    ... color = red
+    ... ''')
+    >>> write('buildout.cfg', '''
+    ... [buildout]
+    ... extends = bar.cfg
+    ... parts = myfiles
+    ...
+    ... [myfiles]
+    ... path = mydata
+    ... color = green
+    ... ''')
+
+    >>> print system(buildout),
+    Installing myfiles.
+      color='green'
+      file1='mydata/file1'
+      path='mydata'
+      recipe='zc.buildout:debug'
+    """
+
 def bug_605017_reuse_extending_section():
     r"""
     >>> write('buildout.cfg', '''
