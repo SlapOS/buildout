@@ -2738,6 +2738,54 @@ def test_constrained_requirement():
     ...         print_('failed', o, c, g, '!=', e)
     """
 
+def bug_605017_reuse_extending_section():
+    r"""
+    >>> write('buildout.cfg', '''
+    ... [buildout]
+    ... parts = myfiles
+    ...   myfiles2
+    ...
+    ... [debug]
+    ... recipe = zc.buildout:debug
+    ...
+    ... [with_file1]
+    ... <= debug
+    ... file1 = ${:path}/file1
+    ... color = red
+    ...
+    ... [with_file2]
+    ... <= debug
+    ... file2 = ${:path}/file2
+    ... color = blue
+    ...
+    ... [myfiles]
+    ... <= with_file1
+    ...    with_file2
+    ... path = mydata
+    ...
+    ... [myfiles2]
+    ... <= with_file1
+    ...    with_file2
+    ... path = mydata2
+    ... ''')
+
+    >>> print system(buildout),
+    Installing myfiles.
+      color='blue'
+      file1='mydata/file1'
+      file2='mydata/file2'
+      path='mydata'
+      recipe='zc.buildout:debug'
+    Installing myfiles2.
+      color='blue'
+      file1='mydata2/file1'
+      file2='mydata2/file2'
+      path='mydata2'
+      recipe='zc.buildout:debug'
+    """
+
+######################################################################
+
 def want_new_zcrecipeegg():
     """
     >>> write('buildout.cfg',

@@ -1152,6 +1152,7 @@ class Options(DictMixin):
 
         if '<' in self._raw:
             self._raw = self._do_extend_raw(name, self._raw, [])
+            self._raw.pop('<')
 
         # force substitutions
         for k, v in sorted(self._raw.items()):
